@@ -1,12 +1,12 @@
 ﻿#include "tunnel.h"
 
-std::string ws2s(const std::wstring& wstr) {
+std::string ws2s(const std::wstring &wstr) {
     using convert_typeX = std::codecvt_utf8<wchar_t>;
     std::wstring_convert<convert_typeX, wchar_t> converterX;
 
     return converterX.to_bytes(wstr);
 }
-std::wstring s2ws(const std::string& str) {
+std::wstring s2ws(const std::string &str) {
     using convert_typeX = std::codecvt_utf8<wchar_t>;
     std::wstring_convert<convert_typeX, wchar_t> converterX;
 
@@ -17,12 +17,12 @@ Tunnel::Tunnel() {
 #ifdef _WIN32
     pipe =
         CreateFileW(L"\\\\.\\pipe\\my_pipe",      // Pipe name
-            GENERIC_READ | GENERIC_WRITE, // Desired access (read-only)
-            FILE_SHARE_READ | FILE_SHARE_WRITE, // Share mode
-            NULL,                  // Security attributes (default)
-            OPEN_EXISTING,         // Opens existing pipe
-            FILE_ATTRIBUTE_NORMAL, // File attributes
-            NULL                   // No template file
+                    GENERIC_READ | GENERIC_WRITE, // Desired access (read-only)
+                    FILE_SHARE_READ | FILE_SHARE_WRITE, // Share mode
+                    NULL,                  // Security attributes (default)
+                    OPEN_EXISTING,         // Opens existing pipe
+                    FILE_ATTRIBUTE_NORMAL, // File attributes
+                    NULL                   // No template file
         );
     if (pipe == INVALID_HANDLE_VALUE) {
         std::wcout << "Failed to connect to pipe." << std::endl;
@@ -41,7 +41,7 @@ Tunnel::~Tunnel() {
     CloseHandle(pipe);
 #elif __linux__
     close(pipe);
-    unlink(pipe_path);
+    // unlink(pipe_path);
 #endif
     std::cout << "Disconnected.\n";
 }
@@ -50,7 +50,7 @@ void Tunnel::send(std::string msg) {
     // std::wcout << "Sending data to pipe..." << std::endl;
     std::wstring wmsg = s2ws(msg);
 #ifdef _WIN32
-    const wchar_t* data = wmsg.c_str();
+    const wchar_t *data = wmsg.c_str();
     DWORD numBytesWritten = 0;
     BOOL result = WriteFile(
         pipe,                           // handle to our outbound pipe
@@ -72,8 +72,7 @@ void Tunnel::send(std::string msg) {
     bool result = numBytesWritten >= 0;
     close(pipe);
 #endif
-    if (!result)
-        std::wcout << "Failed to send data." << std::endl;
+    if (!result) std::wcout << "Failed to send data." << std::endl;
 }
 
 std::string Tunnel::receive() {
@@ -83,10 +82,10 @@ std::string Tunnel::receive() {
     DWORD numBytesRead = 0;
     BOOL result =
         ReadFile(pipe,
-            buffer, // the data from the pipe will be put here
-            127 * sizeof(wchar_t), // number of bytes allocated
-            &numBytesRead, // this will store number of bytes actually read
-            NULL           // not using overlapped IO
+                 buffer, // the data from the pipe will be put here
+                 127 * sizeof(wchar_t), // number of bytes allocated
+                 &numBytesRead, // this will store number of bytes actually read
+                 NULL           // not using overlapped IO
         );
 #elif __linux__
     pipe = open(pipe_path, O_RDONLY);

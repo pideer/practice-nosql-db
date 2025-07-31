@@ -47,6 +47,8 @@ void Tunnel::send(std::string msg) {
         std::wcout << L"Failed to open pipe for writing." << std::endl;
         perror("Error");
         system("pause");
+        this->~Tunnel();
+        exit(1);
     }
 
     ssize_t numBytesWritten =
@@ -55,11 +57,10 @@ void Tunnel::send(std::string msg) {
     close(pipe);
 #endif
 
-    if (result) {
+    if (result)
         std::wcout << "Number of bytes sent: " << numBytesWritten << std::endl;
-    } else {
+    else
         std::wcout << "Failed to send data." << std::endl;
-    }
 }
 
 std::vector<std::string> Tunnel::receive() {
@@ -80,11 +81,12 @@ std::vector<std::string> Tunnel::receive() {
         std::wcout << L"Failed to open pipe for writing." << std::endl;
         perror("Error");
         system("pause");
+        this->~Tunnel();
+        exit(1);
     }
     ssize_t numBytesRead = read(pipe, buffer, sizeof(buffer) - sizeof(wchar_t));
-    close(pipe);
-
     bool result = numBytesRead >= 0;
+    close(pipe);
 #endif
     if (result) {
         buffer[numBytesRead / sizeof(wchar_t)] =
@@ -92,7 +94,8 @@ std::vector<std::string> Tunnel::receive() {
         // std::wcout << "Number of bytes read: " << numBytesRead << endl;
         std::wcout << "Message: " << buffer << std::endl;
         msg = buffer;
-        if (msg == L"close") return { "close" };
+        if (msg == L"close")
+            return {"close"};
         else if (msg == L"exit") {
             disconnect();
             connect();
@@ -170,10 +173,10 @@ void Tunnel::connect() {
 }
 
 bool Tunnel::disconnect() {
-    std::cout << "disconnecting client...\n";
+    std::wcout << "disconnecting client...\n";
 #ifdef _WIN32
     return DisconnectNamedPipe(pipe);
 #elif __linux__
-    return close(pipe);
+    return true;
 #endif
 }
