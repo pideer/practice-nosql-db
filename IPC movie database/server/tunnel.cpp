@@ -92,7 +92,12 @@ std::vector<std::string> Tunnel::receive() {
         // std::wcout << "Number of bytes read: " << numBytesRead << endl;
         std::wcout << "Message: " << buffer << std::endl;
         msg = buffer;
-        if (msg == L"close") return {"close"};
+        if (msg == L"close") return { "close" };
+        else if (msg == L"exit") {
+            disconnect();
+            connect();
+            return std::vector<std::string>();
+        }
     } else {
         std::wcout << "Failed to read data from the pipe." << std::endl;
         disconnect();

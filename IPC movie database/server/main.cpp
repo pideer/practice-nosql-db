@@ -26,7 +26,6 @@ int main(int, char **) {
                 reply = ESC RED_TXT "invalid input\n" RESET;
 
             tunnel.send(reply);
-        } else
-            tunnel.send("");
+        }
     }
 }
