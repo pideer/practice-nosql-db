@@ -29,8 +29,7 @@ Tunnel::~Tunnel() {
 }
 
 void Tunnel::send(std::string msg) {
-    std::wcout << "Sending data to pipe..." << std::endl;
-    // This call blocks until a client process reads all the data
+    // std::wcout << "Sending data to pipe..." << std::endl;
     std::wstring wmsg = s2ws(msg);
 #ifdef _WIN32
     const wchar_t *data = wmsg.c_str();
@@ -55,6 +54,7 @@ void Tunnel::send(std::string msg) {
     bool result = numBytesWritten >= 0;
     close(pipe);
 #endif
+
     if (result) {
         std::wcout << "Number of bytes sent: " << numBytesWritten << std::endl;
     } else {
@@ -92,6 +92,7 @@ std::vector<std::string> Tunnel::receive() {
         // std::wcout << "Number of bytes read: " << numBytesRead << endl;
         std::wcout << "Message: " << buffer << std::endl;
         msg = buffer;
+        if (msg == L"close") return {"close"};
     } else {
         std::wcout << "Failed to read data from the pipe." << std::endl;
         disconnect();
@@ -120,8 +121,8 @@ std::vector<std::string> Tunnel::receive() {
 }
 
 void Tunnel::createPipe() {
-#ifdef _WIN32
     std::wcout << "Creating an instance of a named pipe..." << std::endl;
+#ifdef _WIN32
     // Create a pipe to send data
     pipe = CreateNamedPipeW(
         L"\\\\.\\pipe\\my_pipe", // jsonDBPipe", // name of the pipe
@@ -137,9 +138,12 @@ void Tunnel::createPipe() {
         std::wcout << "Failed to create outbound pipe instance.";
         // look up error code here using GetLastError()
         system("pause");
+        this->~Tunnel();
         exit(1);
     }
-#elif !__linux__
+#elif __linux__
+    mkfifo("/tmp/my_pipe", 0666);
+#else
 #warning no platform defined
 #endif
 }
@@ -153,12 +157,11 @@ void Tunnel::connect() {
         // look up error code here using GetLastError()
         CloseHandle(pipe); // close the pipe
         system("pause");
+        this->~Tunnel();
         exit(1);
     }
-    std::wcout << "Listening..." << std::ends;
-#elif !__linux__
-#warning no platform defined
 #endif // _WIN32
+    std::wcout << "Listening..." << std::endl;
 }
 
 bool Tunnel::disconnect() {

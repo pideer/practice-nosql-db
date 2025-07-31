@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.10.0)
 project(IPC-json_test-server VERSION 0.1.0 LANGUAGES C CXX)
 
-add_executable(IPC-json_test-server main.cpp "tunnel.cpp")
+add_executable(IPC-json_test-server main.cpp "tunnel.cpp" database.cpp)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # point to folder where directory is
