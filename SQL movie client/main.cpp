@@ -8,6 +8,7 @@ int main() {
     std::cout << "Hello SQL Movie Client" << std::endl;
     pqxx::connection cx{"dbname=MovieDB user=postgres password=password "
                         "hostaddr=127.0.0.1 port=5432"};
+
     if (cx.is_open()) {
         std::cout << "Connected to PostGres\n";
         pqxx::work tx{cx};
