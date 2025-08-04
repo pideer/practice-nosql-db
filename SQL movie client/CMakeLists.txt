@@ -13,7 +13,7 @@ endif()
 
 project ("client")
 # Add source to this project's executable.
-add_executable (${PROJECT_NAME} "main.cpp" )
+add_executable (${PROJECT_NAME} "main.cpp")
 
 # point to folder where directory is
 if(WIN32)
