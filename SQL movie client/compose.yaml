@@ -1,0 +1,13 @@
+services:
+  postgres-moviedb:
+    image: postgres:17.5
+    container_name: postgres-moviedb
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: MovieDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
